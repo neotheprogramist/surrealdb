@@ -25,7 +25,6 @@ pub fn req(val: Vec<u8>) -> Result<Request, RpcError> {
 }
 
 pub fn res(res: impl ResTrait) -> Result<Vec<u8>, RpcError> {
-	println!("RES {:?}", res);
 	// Convert the response into a value
 	let val: Value = res.into();
 	println!("value 1 {:?}", val);
