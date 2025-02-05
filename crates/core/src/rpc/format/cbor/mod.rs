@@ -10,10 +10,12 @@ use ciborium::Value as Data;
 use super::ResTrait;
 
 pub fn parse_value(val: Vec<u8>) -> Result<Value, RpcError> {
+	println!("val {:?}", val);
 	let cbor = ciborium::from_reader::<Data, _>(&mut val.as_slice())
 		.map_err(|_| RpcError::ParseError)
 		.map(Cbor)?;
 
+	println!("cbor {:?}", cbor);
 	Value::try_from(cbor).map_err(|v: &str| RpcError::Thrown(v.into()))
 }
 
