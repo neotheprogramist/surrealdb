@@ -5,6 +5,7 @@ use crate::sql::Thing;
 use crate::sql::Uuid;
 use crate::sql::Value;
 use rmpv::Value as Data;
+use starknet_types_core::felt::Felt;
 
 const TAG_NONE: i8 = 1;
 const TAG_UUID: i8 = 2;
@@ -51,7 +52,10 @@ impl TryFrom<Pack> for Value {
 			Data::Ext(t, v) => {
 				match t {
 					// A literal uuid
-					TAG_NONE => Ok(Value::None),
+					TAG_NONE => {
+						println!("TAG_NONE");
+						Ok(Value::None)
+					}
 					// A literal uuid
 					TAG_UUID => match std::str::from_utf8(&v) {
 						Ok(v) => match Uuid::try_from(v) {
@@ -66,6 +70,17 @@ impl TryFrom<Pack> for Value {
 							Ok(v) => Ok(v.into()),
 							_ => Err("Expected a valid Decimal value"),
 						},
+						_ => Err("Expected a valid UTF-8 string"),
+					},
+					// A literal felt252
+					TAG_FELT252 => match std::str::from_utf8(&v) {
+						Ok(v) => {
+							println!("TAG_FELT252 {}", v);
+							match Felt::from_dec_str(v) {
+								Ok(v) => Ok(Value::Number(Number::Felt252(v))),
+								_ => Err("Expected a valid Felt252 value"),
+							}
+						}
 						_ => Err("Expected a valid UTF-8 string"),
 					},
 					// A literal duration

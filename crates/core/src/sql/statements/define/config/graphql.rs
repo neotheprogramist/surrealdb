@@ -62,7 +62,7 @@ impl Display for TablesConfig {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		match self {
 			TablesConfig::Auto => write!(f, "AUTO")?,
-			TablesConfig::None => write!(f, "NONE")?,
+			TablesConfig::None => write!(f, "NONS")?,
 			TablesConfig::Include(cs) => {
 				let mut f = Pretty::from(f);
 				write!(f, "INCLUDE ")?;

@@ -2,6 +2,7 @@ use ciborium::Value as Data;
 use geo::{LineString, Point, Polygon};
 use geo_types::{MultiLineString, MultiPoint, MultiPolygon};
 use rust_decimal::Decimal;
+use starknet_types_core::felt::Felt;
 use std::collections::BTreeMap;
 use std::iter::once;
 use std::ops::Bound;
@@ -107,7 +108,10 @@ impl TryFrom<Cbor> for Value {
 						_ => Err("Expected a CBOR array with 2 elements"),
 					},
 					// A literal NONE
-					TAG_NONE => Ok(Value::None),
+					TAG_NONE => {
+						println!("TAG_NONE");
+						Ok(Value::None)
+					}
 					// A literal uuid
 					TAG_STRING_UUID => match *v {
 						Data::Text(v) => match Uuid::try_from(v) {
@@ -123,6 +127,14 @@ impl TryFrom<Cbor> for Value {
 						Data::Text(v) => match Decimal::from_str(v.as_str()) {
 							Ok(v) => Ok(v.into()),
 							_ => Err("Expected a valid Decimal value"),
+						},
+						_ => Err("Expected a CBOR text data type"),
+					},
+					// A literal felt252
+					TAG_STRING_FELT252 => match *v {
+						Data::Text(v) => match Felt::from_dec_str(v.as_str()) {
+							Ok(v) => Ok(Number::Felt252(v).into()),
+							_ => Err("Expected a valid Felt252 value"),
 						},
 						_ => Err("Expected a CBOR text data type"),
 					},
@@ -322,7 +334,10 @@ impl TryFrom<Value> for Cbor {
 	type Error = &'static str;
 	fn try_from(val: Value) -> Result<Self, &'static str> {
 		match val {
-			Value::None => Ok(Cbor(Data::Tag(TAG_NONE, Box::new(Data::Null)))),
+			Value::None => {
+				println!("VALUE::NONE");
+				Ok(Cbor(Data::Tag(TAG_NONE, Box::new(Data::Null))))
+			}
 			Value::Null => Ok(Cbor(Data::Null)),
 			Value::Bool(v) => Ok(Cbor(Data::Bool(v))),
 			Value::Number(v) => match v {
