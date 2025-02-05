@@ -20,13 +20,17 @@ pub fn parse_value(val: Vec<u8>) -> Result<Value, RpcError> {
 }
 
 pub fn req(val: Vec<u8>) -> Result<Request, RpcError> {
+	println!("REQ {:?}", val);
 	parse_value(val)?.try_into()
 }
 
 pub fn res(res: impl ResTrait) -> Result<Vec<u8>, RpcError> {
+	println!("RES {:?}", res);
 	// Convert the response into a value
 	let val: Value = res.into();
+	println!("value 1 {:?}", val);
 	let val: Cbor = val.try_into()?;
+	println!("value 2 {:?}", val);
 	// Create a new vector for encoding output
 	let mut res = Vec::new();
 	// Serialize the value into CBOR binary data
