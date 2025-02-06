@@ -131,14 +131,6 @@ impl TryFrom<Cbor> for Value {
 						},
 						_ => Err("Expected a CBOR text data type"),
 					},
-					// A literal felt252
-					TAG_STRING_FELT252 => match *v {
-						Data::Text(v) => match Felt::from_dec_str(v.as_str()) {
-							Ok(v) => Ok(Number::Felt252(v).into()),
-							_ => Err("Expected a valid Felt252 value"),
-						},
-						_ => Err("Expected a CBOR text data type"),
-					},
 					// A literal duration
 					TAG_STRING_DURATION => match *v {
 						Data::Text(v) => match Duration::try_from(v) {
