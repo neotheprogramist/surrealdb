@@ -53,7 +53,6 @@ pub fn sub(a: Value, b: Value) -> Result<Value, Error> {
 }
 
 pub fn mul(a: Value, b: Value) -> Result<Value, Error> {
-	println!("multiply value");
 	a.try_mul(b)
 }
 

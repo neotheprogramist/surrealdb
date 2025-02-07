@@ -1310,6 +1310,7 @@ impl Value {
 			Self::Number(Number::Int(_)) => "int",
 			Self::Number(Number::Float(_)) => "float",
 			Self::Number(Number::Decimal(_)) => "decimal",
+			Self::Number(Number::Felt252(_)) => "felt252",
 			Self::Geometry(Geometry::Point(_)) => "geometry<point>",
 			Self::Geometry(Geometry::Line(_)) => "geometry<line>",
 			Self::Geometry(Geometry::Polygon(_)) => "geometry<polygon>",
@@ -1337,6 +1338,7 @@ impl Value {
 			Kind::Int => self.coerce_to_int().map(Value::from),
 			Kind::Float => self.coerce_to_float().map(Value::from),
 			Kind::Decimal => self.coerce_to_decimal().map(Value::from),
+			Kind::Felt252 => self.coerce_to_felt252().map(Value::from),
 			Kind::Number => self.coerce_to_number().map(Value::from),
 			Kind::String => self.coerce_to_strand().map(Value::from),
 			Kind::Datetime => self.coerce_to_datetime().map(Value::from),
@@ -1595,6 +1597,19 @@ impl Value {
 			_ => Err(Error::CoerceTo {
 				from: self,
 				into: "decimal".into(),
+			}),
+		}
+	}
+
+	/// Try to coerce this value to a `Felt252`
+	pub(crate) fn coerce_to_felt252(self) -> Result<Number, Error> {
+		match self {
+			// Allow any felt252 value
+			Value::Number(Number::Felt252(v)) => Ok(Number::Felt252(v)),
+			// Anything else raises an error
+			_ => Err(Error::CoerceTo {
+				from: self,
+				into: "felt252".into(),
 			}),
 		}
 	}
@@ -1932,6 +1947,7 @@ impl Value {
 			Kind::Int => self.convert_to_int().map(Value::from),
 			Kind::Float => self.convert_to_float().map(Value::from),
 			Kind::Decimal => self.convert_to_decimal().map(Value::from),
+			Kind::Felt252 => self.convert_to_felt252().map(Value::from),
 			Kind::Number => self.convert_to_number().map(Value::from),
 			Kind::String => self.convert_to_strand().map(Value::from),
 			Kind::Datetime => self.convert_to_datetime().map(Value::from),
@@ -2879,7 +2895,7 @@ impl fmt::Display for Value {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		let mut f = Pretty::from(f);
 		match self {
-			Value::None => write!(f, "NONE"),
+			Value::None => write!(f, "NONS"),
 			Value::Null => write!(f, "NULL"),
 			Value::Array(v) => write!(f, "{v}"),
 			Value::Block(v) => write!(f, "{v}"),

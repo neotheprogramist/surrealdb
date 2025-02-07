@@ -2,12 +2,14 @@ use ciborium::Value as Data;
 use geo::{LineString, Point, Polygon};
 use geo_types::{MultiLineString, MultiPoint, MultiPolygon};
 use rust_decimal::Decimal;
+use starknet_types_core::felt::Felt;
 use std::collections::BTreeMap;
 use std::iter::once;
 use std::ops::Bound;
 use std::ops::Deref;
 
 use crate::sql::id::range::IdRange;
+use crate::sql::number::HALF_PRIME;
 use crate::sql::Array;
 use crate::sql::Datetime;
 use crate::sql::Duration;
@@ -36,7 +38,7 @@ const TAG_STRING_DECIMAL: u64 = 10;
 const TAG_CUSTOM_DATETIME: u64 = 12;
 const TAG_STRING_DURATION: u64 = 13;
 const TAG_CUSTOM_DURATION: u64 = 14;
-const TAG_STRING_FELT252: u64 = 252;
+const TAG_STRING_FELT252: u64 = 10;
 const TAG_FUTURE: u64 = 15;
 
 // Ranges
@@ -107,7 +109,10 @@ impl TryFrom<Cbor> for Value {
 						_ => Err("Expected a CBOR array with 2 elements"),
 					},
 					// A literal NONE
-					TAG_NONE => Ok(Value::None),
+					TAG_NONE => {
+						println!("TAG_NONE");
+						Ok(Value::None)
+					}
 					// A literal uuid
 					TAG_STRING_UUID => match *v {
 						Data::Text(v) => match Uuid::try_from(v) {
@@ -318,6 +323,32 @@ impl TryFrom<Cbor> for Value {
 	}
 }
 
+pub fn abs(value: &Felt) -> Felt {
+	if value * Felt::from(10000) < *HALF_PRIME {
+		*value
+	} else {
+		-value
+	}
+}
+
+pub fn display(value: &Felt) -> String {
+	let abs_value = abs(&(*value * Felt::from(10000)));
+
+	let string_value = abs_value.to_string();
+
+	if string_value.len() <= 4 {
+		return format!("0.{}{}", string_value, "0".repeat(4 - string_value.len()));
+	}
+
+	let len = string_value.len();
+
+	let split_index = len - 4;
+	let integer_part = string_value[0..split_index].to_string();
+	let decimal_part = string_value[split_index..].to_string();
+	let final_value = format!("{}.{}", integer_part, decimal_part);
+	final_value
+}
+
 impl TryFrom<Value> for Cbor {
 	type Error = &'static str;
 	fn try_from(val: Value) -> Result<Self, &'static str> {
@@ -332,7 +363,7 @@ impl TryFrom<Value> for Cbor {
 					Ok(Cbor(Data::Tag(TAG_STRING_DECIMAL, Box::new(Data::Text(v.to_string())))))
 				}
 				Number::Felt252(v) => {
-					Ok(Cbor(Data::Tag(TAG_STRING_FELT252, Box::new(Data::Text(v.to_string())))))
+					Ok(Cbor(Data::Tag(TAG_STRING_FELT252, Box::new(Data::Text(display(&v))))))
 				}
 			},
 			Value::Strand(v) => Ok(Cbor(Data::Text(v.0))),

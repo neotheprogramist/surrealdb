@@ -25,6 +25,7 @@ pub enum Kind {
 	Float,
 	Int,
 	Number,
+	Felt252,
 	Object,
 	Point,
 	String,
@@ -158,6 +159,7 @@ impl Kind {
 				| Kind::Bytes
 				| Kind::Datetime
 				| Kind::Decimal
+				| Kind::Felt252
 				| Kind::Duration
 				| Kind::Float
 				| Kind::Int
@@ -205,6 +207,7 @@ impl Display for Kind {
 			Kind::Bytes => f.write_str("bytes"),
 			Kind::Datetime => f.write_str("datetime"),
 			Kind::Decimal => f.write_str("decimal"),
+			Kind::Felt252 => f.write_str("felt252"),
 			Kind::Duration => f.write_str("duration"),
 			Kind::Float => f.write_str("float"),
 			Kind::Int => f.write_str("int"),
