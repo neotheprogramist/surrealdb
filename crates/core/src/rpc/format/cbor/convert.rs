@@ -353,10 +353,7 @@ impl TryFrom<Value> for Cbor {
 	type Error = &'static str;
 	fn try_from(val: Value) -> Result<Self, &'static str> {
 		match val {
-			Value::None => {
-				println!("VALUE::NONE");
-				Ok(Cbor(Data::Tag(TAG_NONE, Box::new(Data::Null))))
-			}
+			Value::None => Ok(Cbor(Data::Tag(TAG_NONE, Box::new(Data::Null)))),
 			Value::Null => Ok(Cbor(Data::Null)),
 			Value::Bool(v) => Ok(Cbor(Data::Bool(v))),
 			Value::Number(v) => match v {
